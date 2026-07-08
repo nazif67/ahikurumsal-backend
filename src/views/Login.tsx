@@ -71,6 +71,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
+  const [kvkkOnay, setKvkkOnay] = useState(false)
   const [error, setError] = useState<{ message: string; type: 'error' | 'warning' | 'info' | 'success' } | null>(null)
 
   // Hooks
@@ -109,6 +110,16 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    // KVKK aydınlatma onayı olmadan giriş yapılmamalı
+    if (!kvkkOnay) {
+      setError({
+        message: 'Devam etmek için KVKK Aydınlatma Metni’ni onaylamanız gerekmektedir.',
+        type: 'error'
+      })
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -245,6 +256,24 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
                 Şifremi unuttum?
               </Typography>
             </div>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={kvkkOnay}
+                  onChange={e => setKvkkOnay(e.target.checked)}
+                  disabled={loading}
+                  size='small'
+                />
+              }
+              label={
+                <Typography variant='body2'>
+                  <a href='https://ahikurumsal.com/kvkk-aydinlatma-metni' target='_blank' rel='noopener noreferrer'>
+                    KVKK Aydınlatma Metni
+                  </a>
+                  ’ni okudum ve kabul ediyorum.
+                </Typography>
+              }
+            />
             <Button fullWidth variant='contained' type='submit' disabled={loading}>
               {loading ? 'Giriş yapılıyor...' : 'Giriş'}
             </Button>

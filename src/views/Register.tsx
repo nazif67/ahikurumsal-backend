@@ -10,6 +10,8 @@ import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
 import Alert from '@mui/material/Alert'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import classnames from 'classnames'
@@ -54,6 +56,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [kvkkOnay, setKvkkOnay] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<{ message: string; type: 'error' | 'warning' | 'info' | 'success' } | null>(null)
 
@@ -76,6 +79,16 @@ const Register = ({ mode }: { mode: SystemMode }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // KVKK açık rıza olmadan hesap oluşturulmamalı
+    if (!kvkkOnay) {
+      setError({
+        message: 'Devam etmek için KVKK Aydınlatma Metni ve Gizlilik Politikası’nı onaylamanız gerekmektedir.',
+        type: 'error'
+      })
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -171,6 +184,28 @@ const Register = ({ mode }: { mode: SystemMode }) => {
                 {error.message}
               </Alert>
             )}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={kvkkOnay}
+                  onChange={e => setKvkkOnay(e.target.checked)}
+                  disabled={loading}
+                  size='small'
+                />
+              }
+              label={
+                <Typography variant='body2'>
+                  <a href='https://ahikurumsal.com/kvkk-aydinlatma-metni' target='_blank' rel='noopener noreferrer'>
+                    KVKK Aydınlatma Metni
+                  </a>{' '}
+                  ve{' '}
+                  <a href='https://ahikurumsal.com/gizlilik-politikasi' target='_blank' rel='noopener noreferrer'>
+                    Gizlilik Politikası
+                  </a>
+                  ’nı okudum, kişisel verilerimin işlenmesini kabul ediyorum.
+                </Typography>
+              }
+            />
             <Button fullWidth variant='contained' type='submit' disabled={loading}>
               {loading ? <CircularProgress size={20} /> : 'Hesap Oluştur'}
             </Button>
