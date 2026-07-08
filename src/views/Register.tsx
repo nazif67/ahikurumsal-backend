@@ -81,14 +81,18 @@ const Register = ({ mode }: { mode: SystemMode }) => {
 
     try {
       await authService.registerCompany(username, email, password)
+      setError({
+        message:
+          'Hesabınız oluşturuldu! Modül yetkileriniz yönetici tarafından en kısa sürede tanımlanacaktır. Panele yönlendiriliyorsunuz...',
+        type: 'success'
+      })
       const dest = authService.getDashboardUrl() || '/statistics'
-      router.push(dest)
+      setTimeout(() => router.push(dest), 3500)
     } catch (err: any) {
       let errorMessage = 'Kayıt sırasında bir hata oluştu'
       const apiMsg = err?.response?.data?.error?.message || err?.message
       if (apiMsg) errorMessage = apiMsg
       setError({ message: errorMessage, type: 'error' })
-    } finally {
       setLoading(false)
     }
   }

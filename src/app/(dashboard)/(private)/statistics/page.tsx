@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 
 // MUI Imports
-import { Card, CardContent, Grid, Typography, Box, LinearProgress } from '@mui/material'
+import { Card, CardContent, Grid, Typography, Box, LinearProgress, Alert, AlertTitle } from '@mui/material'
 
 // Component Imports
 import type { ApexOptions } from 'apexcharts'
@@ -41,9 +41,18 @@ const StatisticsPage = () => {
   const [branchStats, setBranchStats] = useState<any[]>([])
   const [recentHires, setRecentHires] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [awaitingAuthorization, setAwaitingAuthorization] = useState(false)
 
   // Fetch data
   useEffect(() => {
+    // Yeni kayıt olan şirketlerin modül yetkisi admin tarafından sonradan tanımlanır;
+    // henüz hiçbir yetki yoksa bilgilendirme göster
+    const user = authService.getUser()
+
+    setAwaitingAuthorization(
+      authService.isCompany() && !user?.ahiIkMember && !user?.institutionManagementMember
+    )
+
     const fetchData = async () => {
       try {
         // Get company profile
@@ -163,6 +172,17 @@ const StatisticsPage = () => {
 
   return (
     <Grid container spacing={6}>
+      {/* Yetki bekleyen yeni şirketler için bilgilendirme */}
+      {awaitingAuthorization && (
+        <Grid item xs={12}>
+          <Alert severity='info' icon={<i className='tabler-clock' />}>
+            <AlertTitle>Yetki tanımlamanız bekleniyor</AlertTitle>
+            Hesabınız başarıyla oluşturuldu. Modül yetkileriniz (AHİ-İK / Kurum Yönetimi) yönetici tarafından en
+            kısa sürede tanımlanacaktır. Yetkileriniz tanımlandığında ilgili menüler otomatik olarak aktif olacaktır.
+          </Alert>
+        </Grid>
+      )}
+
       {/* İstatistik Kartları */}
       <Grid item xs={12} sm={6} md={3}>
         <Card>
