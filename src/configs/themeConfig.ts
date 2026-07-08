@@ -50,7 +50,7 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: 'Kurum360',
+  templateName: 'Ahi Kurumsal',
   homePageUrl: '/',
   settingsCookieName: 'kurum360',
   mode: 'light', // 'system', 'light', 'dark'

@@ -20,7 +20,7 @@ const Footer = () => {
       }}
     >
       <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-        © {new Date().getFullYear()} Codereltech L.L.C. Tüm hakları saklıdır.
+        © {new Date().getFullYear()} Ahi Kurumsal. Tüm hakları saklıdır.
       </Typography>
     </Box>
   )
