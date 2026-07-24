@@ -19,9 +19,9 @@ import '@/app/globals.css'
 import '@assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'Ahikariyer - Kariyer İlan Yönetim paneli',
+  title: 'Ahi Kurumsal | İnsan Kaynakları ve Kurum Yönetim Platformu',
   description:
-    'AhiKariyer CMS içerik yönetim paneli'
+    'Personelinizi tek platformdan yönetin: QR ile giriş-çıkış (PDKS), izin ve görev takibi, dijital İK ve kurum yönetimi. Ahi Kurumsal ile kurumsal süreçlerinizi güvenle dijitalleştirin.'
 }
 
 const RootLayout = async (props: ChildrenType) => {

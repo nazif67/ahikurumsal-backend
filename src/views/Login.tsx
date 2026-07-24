@@ -34,9 +34,6 @@ import Link from '@components/Link'
 import Logo from '@components/layout/shared/Logo'
 import CustomTextField from '@core/components/mui/TextField'
 
-// Config Imports
-import themeConfig from '@configs/themeConfig'
-
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
@@ -191,8 +188,8 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         </Link>
         <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-11 sm:mbs-14 md:mbs-0'>
           <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>{`AhiKurumsal'a Hoşgeldiniz`}</Typography>
-            <Typography>Lütfen devam etmek için giriş yap</Typography>
+            <Typography variant='h4'>{`Ahi Kurumsal'a Hoş Geldiniz`}</Typography>
+            <Typography>İnsan kaynakları, PDKS ve kurum yönetimi tek platformda. Devam etmek için giriş yapın.</Typography>
           </div>
           
           <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
