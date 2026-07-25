@@ -35,8 +35,12 @@ interface ExtendedUpdateUserDTO extends Omit<UpdateUserDTO, 'documentId'> {
     ahiIkEnabled?: boolean;
     ahiIkStartDate?: string;
     ahiIkEndDate?: string;
+    storageQuotaBytes?: number;
   };
 }
+
+const BYTES_PER_MB = 1024 * 1024
+const DEFAULT_QUOTA_BYTES = 5 * BYTES_PER_MB
 
 const UpdateUserPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const resolvedParams = use(params)
@@ -61,9 +65,12 @@ const UpdateUserPage = ({ params }: { params: Promise<{ id: string }> }) => {
       sector: undefined,
       ahiIkEnabled: false,
       ahiIkStartDate: '',
-      ahiIkEndDate: ''
+      ahiIkEndDate: '',
+      storageQuotaBytes: DEFAULT_QUOTA_BYTES
     }
   })
+
+  const [storageUsedBytes, setStorageUsedBytes] = useState<number>(0)
 
   const router = useRouter()
 
@@ -105,16 +112,19 @@ const UpdateUserPage = ({ params }: { params: Promise<{ id: string }> }) => {
           sector: userData.companyProfile.sector?.id,
           ahiIkEnabled: (userData.companyProfile as any).ahiIkEnabled || false,
           ahiIkStartDate: (userData.companyProfile as any).ahiIkStartDate || '',
-          ahiIkEndDate: (userData.companyProfile as any).ahiIkEndDate || ''
+          ahiIkEndDate: (userData.companyProfile as any).ahiIkEndDate || '',
+          storageQuotaBytes: userData.companyProfile.storageQuotaBytes ?? DEFAULT_QUOTA_BYTES
         } : {
           companyName: '',
           logo: undefined,
           sector: undefined,
           ahiIkEnabled: false,
           ahiIkStartDate: '',
-          ahiIkEndDate: ''
+          ahiIkEndDate: '',
+          storageQuotaBytes: DEFAULT_QUOTA_BYTES
         }
       })
+      setStorageUsedBytes(userData.companyProfile?.storageUsedBytes ?? 0)
     } catch (error: any) {
       console.error('Veri yüklenirken hata:', error)
       setError(error.message || 'Veriler yüklenirken bir hata oluştu')
@@ -170,7 +180,8 @@ const UpdateUserPage = ({ params }: { params: Promise<{ id: string }> }) => {
           sector: formData.companyProfile?.sector || null,
           ahiIkEnabled: formData.companyProfile?.ahiIkEnabled || false,
           ahiIkStartDate: formData.companyProfile?.ahiIkStartDate || null,
-          ahiIkEndDate: formData.companyProfile?.ahiIkEndDate || null
+          ahiIkEndDate: formData.companyProfile?.ahiIkEndDate || null,
+          storageQuotaBytes: formData.companyProfile?.storageQuotaBytes || DEFAULT_QUOTA_BYTES
         }
       }
 
@@ -354,6 +365,30 @@ const UpdateUserPage = ({ params }: { params: Promise<{ id: string }> }) => {
               </FormControl>
             </Grid>
 
+            {/* Depolama Kotası */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 3 }} />
+              <Typography variant='h6'>Depolama Kotası</Typography>
+              <Typography variant='body2' color='textSecondary' sx={{ mb: 2 }}>
+                Kullanım: {(storageUsedBytes / BYTES_PER_MB).toFixed(1)} MB / {((formData.companyProfile?.storageQuotaBytes || DEFAULT_QUOTA_BYTES) / BYTES_PER_MB).toFixed(0)} MB
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <CustomTextField
+                    fullWidth
+                    type='number'
+                    label='Kota (MB)'
+                    value={(formData.companyProfile?.storageQuotaBytes ?? DEFAULT_QUOTA_BYTES) / BYTES_PER_MB}
+                    onChange={e => {
+                      const mb = Number(e.target.value)
+                      handleChange('companyProfile.storageQuotaBytes', (Number.isFinite(mb) && mb > 0 ? mb : 5) * BYTES_PER_MB)
+                    }}
+                    inputProps={{ min: 1, step: 1 }}
+                    helperText='Firma yükseltme talep ederse buradan artırabilirsiniz'
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
 
             {error && (
               <Grid item xs={12}>
