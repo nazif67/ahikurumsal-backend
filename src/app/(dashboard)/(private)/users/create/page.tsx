@@ -110,6 +110,7 @@ const CreateUserPage = () => {
 
       await usersService.createUser(payload)
       router.push('/users/list')
+      router.refresh()
     } catch (error: any) {
       console.error('Kullanıcı oluşturma hatası:', error)
       setError(error.response?.data?.error?.message || 'Kullanıcı oluşturulurken bir hata oluştu')

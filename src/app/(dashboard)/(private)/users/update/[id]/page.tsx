@@ -187,6 +187,7 @@ const UpdateUserPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
       await usersService.updateUser(payload)
       router.push('/users/list')
+      router.refresh()
     } catch (error: any) {
       console.error('Kullanıcı güncelleme hatası:', error)
       setError(error.message || 'Kullanıcı güncellenirken bir hata oluştu')
