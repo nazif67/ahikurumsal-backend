@@ -184,6 +184,17 @@ const UsersListPage = () => {
     }
   }
 
+  const formatStorage = (user: StrapiUser) => {
+    const usedBytes = user.companyProfile?.storageUsedBytes ?? 0
+    const quotaBytes = user.companyProfile?.storageQuotaBytes ?? 5 * 1024 * 1024
+    const usedMB = usedBytes / (1024 * 1024)
+    const quotaMB = quotaBytes / (1024 * 1024)
+    const ratio = quotaMB > 0 ? usedMB / quotaMB : 0
+    const color = ratio >= 1 ? 'error' : ratio >= 0.8 ? 'warning' : 'success'
+    const label = `${usedMB.toFixed(1)} / ${quotaMB.toFixed(0)} MB`
+    return { label, color } as const
+  }
+
   if (loading) {
     return <div>Yükleniyor...</div>
   }
@@ -212,6 +223,7 @@ const UsersListPage = () => {
                 <TableCell>Kullanıcı</TableCell>
                 <TableCell>E-posta</TableCell>
                 <TableCell>Şirket</TableCell>
+                <TableCell>Depolama</TableCell>
                 <TableCell>Durum</TableCell>
                 <TableCell>AHİ-İK</TableCell>
                 <TableCell>Kurum Yönetimi</TableCell>
@@ -252,6 +264,17 @@ const UsersListPage = () => {
                         label={user.companyProfile.companyName}
                         color='primary'
                         variant='outlined'
+                        size='small'
+                      />
+                    ) : (
+                      '-'
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {user.companyProfile ? (
+                      <Chip
+                        label={formatStorage(user).label}
+                        color={formatStorage(user).color}
                         size='small'
                       />
                     ) : (

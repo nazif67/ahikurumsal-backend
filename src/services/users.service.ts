@@ -26,6 +26,8 @@ export interface StrapiUser {
       id: number;
       name: string;
     };
+    storageUsedBytes?: number;
+    storageQuotaBytes?: number;
   } | null;
 }
 
