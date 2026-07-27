@@ -265,6 +265,33 @@ const getNavigation = (): MenuItem[] => [
     path: '/institution-management/reminders',
     visible: () => !authService.isWorker() && authService.isInstitutionManagement()
   },
+  // İş Güvenliği (OSGB) rolü - tamamen ayrı bir panel
+  {
+    title: 'İş Güvenliği',
+    icon: 'tabler-shield-check',
+    path: '/is-guvenligi',
+    visible: () => authService.isIsGuvenligi(),
+    children: [
+      {
+        title: 'Dashboard',
+        icon: 'tabler-layout-dashboard',
+        path: '/is-guvenligi/dashboard',
+        visible: () => authService.isIsGuvenligi()
+      },
+      {
+        title: 'İlaç Talepleri',
+        icon: 'tabler-pill',
+        path: '/is-guvenligi/ilac-talepleri',
+        visible: () => authService.isIsGuvenligi()
+      },
+      {
+        title: 'Firmalar',
+        icon: 'tabler-building',
+        path: '/is-guvenligi/firmalar',
+        visible: () => authService.isIsGuvenligi()
+      }
+    ]
+  },
   {
     title: 'Kullanıcı Yönetim',
     icon: 'tabler-users',
@@ -280,6 +307,11 @@ const getNavigation = (): MenuItem[] => [
         title: 'Yeni Kullanıcı',
         icon: 'tabler-plus',
         path: '/users/create'
+      },
+      {
+        title: 'İş Güvenliği Firmaları',
+        icon: 'tabler-building-shield',
+        path: '/is-guvenligi-firmalari'
       }
     ]
   },

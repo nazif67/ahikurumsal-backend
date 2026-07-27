@@ -61,7 +61,9 @@ const CreateUserPage = () => {
     try {
       const response = await rolesService.getRoles()
       if (response.error) throw response.error
-      const filteredRoles = response.data.filter((role: StrapiRole) => role.name === 'Authenticated')
+      const filteredRoles = response.data.filter((role: StrapiRole) =>
+        ['Authenticated', 'İş Güvenliği'].includes(role.name)
+      )
       setRoles(filteredRoles)
       if (filteredRoles.length > 0) {
         setFormData(prev => ({

@@ -9,7 +9,7 @@ export interface StrapiRole {
   documentId: string;
   name: string;
   description: string;
-  type: 'employee' | 'authenticated' | 'worker';
+  type: 'employee' | 'authenticated' | 'worker' | 'is-guvenligi';
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -215,6 +215,10 @@ export class AuthService {
     return this.user?.role?.type === 'worker'
   }
 
+  public isIsGuvenligi(): boolean {
+    return this.user?.role?.type === 'is-guvenligi'
+  }
+
   public isAhiIk(): boolean {
     // Şirket ve ahiIkMember=true ise AHİ-İK'ya tanımlı
     return this.isCompany() && this.user?.ahiIkMember === true
@@ -403,6 +407,8 @@ export class AuthService {
       return '/statistics'
     } else if (this.isWorker()) {
       return '/worker-dashboard'
+    } else if (this.isIsGuvenligi()) {
+      return '/is-guvenligi/dashboard'
     }
 
     return '/'

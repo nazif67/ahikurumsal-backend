@@ -9,3 +9,5 @@ export * from './reminder.service';
 export * from './purchasing.service';
 export * from './outgoing-document.service';
 export * from './incoming-document.service';
+export * from './is-guvenligi-firma.service';
+export * from './is-guvenligi-ilac-talebi.service';

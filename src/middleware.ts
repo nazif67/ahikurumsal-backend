@@ -39,7 +39,9 @@ export function middleware(request: NextRequest) {
         ? '/statistics'
         : userData?.role?.type === 'worker'
           ? '/worker-dashboard'
-          : '/login'
+          : userData?.role?.type === 'is-guvenligi'
+            ? '/is-guvenligi/dashboard'
+            : '/login'
 
     return NextResponse.redirect(new URL(dest, request.url))
   }
@@ -60,6 +62,22 @@ export function middleware(request: NextRequest) {
     if (!isWorkerPath) {
       console.log('Worker unauthorized path attempt:', pathname, '- Redirecting to dashboard')
       return NextResponse.redirect(new URL('/worker-dashboard', request.url))
+    }
+  }
+
+  // İŞ GÜVENLİĞİ KORUMASI: İş Güvenliği rolü sadece kendi sayfalarına erişebilir
+  if (userData?.role?.type === 'is-guvenligi') {
+    const isGuvenligiAllowedPaths = [
+      '/is-guvenligi',
+      '/profile/password' // Şifre değiştirme sayfası
+    ]
+
+    const isIsGuvenligiPath = isGuvenligiAllowedPaths.some(path => pathname.startsWith(path))
+
+    // İş Güvenliği izinli path'de değilse, dashboard'a yönlendir
+    if (!isIsGuvenligiPath) {
+      console.log('İş Güvenliği unauthorized path attempt:', pathname, '- Redirecting to dashboard')
+      return NextResponse.redirect(new URL('/is-guvenligi/dashboard', request.url))
     }
   }
 

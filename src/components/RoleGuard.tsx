@@ -7,7 +7,7 @@ import { Box, CircularProgress } from '@mui/material'
 
 interface RoleGuardProps {
   children: React.ReactNode
-  allowedRoles?: ('employee' | 'authenticated' | 'worker')[]
+  allowedRoles?: ('employee' | 'authenticated' | 'worker' | 'is-guvenligi')[]
   requireAhiIk?: boolean
 }
 
