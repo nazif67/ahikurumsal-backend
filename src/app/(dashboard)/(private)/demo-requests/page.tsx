@@ -234,6 +234,7 @@ const DemoRequestsPage = () => {
                       <TableCell>Email</TableCell>
                       <TableCell>Telefon</TableCell>
                       <TableCell>Şirket</TableCell>
+                      <TableCell>Açıklama</TableCell>
                       <TableCell>Durum</TableCell>
                       <TableCell>Talep Tarihi</TableCell>
                       <TableCell align='center'>İşlemler</TableCell>
@@ -242,7 +243,7 @@ const DemoRequestsPage = () => {
                   <TableBody>
                     {demoRequests.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} align='center'>
+                        <TableCell colSpan={8} align='center'>
                           <Typography variant='body2' color='text.secondary'>
                             Henüz demo talebi bulunmamaktadır.
                           </Typography>
@@ -269,6 +270,22 @@ const DemoRequestsPage = () => {
                           <TableCell>
                             <Typography variant='body2' color='text.secondary'>
                               {request.companyName || '-'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ maxWidth: 220 }}>
+                            <Typography
+                              variant='body2'
+                              color='text.secondary'
+                              title={request.message || undefined}
+                              sx={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical'
+                              }}
+                            >
+                              {request.message || '-'}
                             </Typography>
                           </TableCell>
                           <TableCell>
