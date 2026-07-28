@@ -13,6 +13,7 @@ export interface StrapiUser {
   role?: {
     id: number;
     name: string;
+    type?: string; // 'authenticated' | 'is-guvenligi' | 'employee' ...
   };
   companyProfile?: {
     id: number;

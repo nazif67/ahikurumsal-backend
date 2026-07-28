@@ -27,6 +27,8 @@ import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Switch from '@mui/material/Switch'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 
 // Component Imports
 import Link from '@components/Link'
@@ -45,6 +47,7 @@ const UsersListPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<StrapiUser | null>(null)
+  const [aktifSekme, setAktifSekme] = useState<'normal' | 'isGuvenligi'>('normal')
 
   // Hooks
   const router = useRouter()
@@ -199,6 +202,13 @@ const UsersListPage = () => {
     return <div>Yükleniyor...</div>
   }
 
+  // İş Güvenliği (OSGB) hesaplarının companyProfile'ı olmaz; şirket/depolama/AHİ-İK
+  // sütunları onlar için hep "-" göründüğünden ayrı sekmede ve sade kolonlarla listelenir.
+  const isGuvenligiKullanicilari = users.filter(user => user.role?.type === 'is-guvenligi')
+  const normalKullanicilar = users.filter(user => user.role?.type !== 'is-guvenligi')
+  const osgbGorunumu = aktifSekme === 'isGuvenligi'
+  const goruntulenenKullanicilar = osgbGorunumu ? isGuvenligiKullanicilari : normalKullanicilar
+
   return (
     <Card>
       <CardHeader
@@ -216,22 +226,38 @@ const UsersListPage = () => {
           </Alert>
         )}
 
+        <Tabs value={aktifSekme} onChange={(_, deger) => setAktifSekme(deger)} sx={{ mb: 4 }}>
+          <Tab value='normal' label={`Kullanıcılar (${normalKullanicilar.length})`} />
+          <Tab value='isGuvenligi' label={`İş Güvenliği (${isGuvenligiKullanicilari.length})`} />
+        </Tabs>
+
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Kullanıcı</TableCell>
                 <TableCell>E-posta</TableCell>
-                <TableCell>Şirket</TableCell>
-                <TableCell>Depolama</TableCell>
+                {!osgbGorunumu && <TableCell>Şirket</TableCell>}
+                {!osgbGorunumu && <TableCell>Depolama</TableCell>}
                 <TableCell>Durum</TableCell>
-                <TableCell>AHİ-İK</TableCell>
-                <TableCell>Kurum Yönetimi</TableCell>
+                {!osgbGorunumu && <TableCell>AHİ-İK</TableCell>}
+                {!osgbGorunumu && <TableCell>Kurum Yönetimi</TableCell>}
                 <TableCell>İşlemler</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map(user => (
+              {goruntulenenKullanicilar.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={osgbGorunumu ? 4 : 8}>
+                    <Typography variant='body2' color='text.secondary' sx={{ textAlign: 'center', py: 4 }}>
+                      {osgbGorunumu
+                        ? 'Henüz İş Güvenliği hesabı yok. "Yeni Kullanıcı" sayfasından İş Güvenliği Firması switch’ini açarak oluşturabilirsiniz.'
+                        : 'Kullanıcı bulunamadı'}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+              {goruntulenenKullanicilar.map(user => (
                 <TableRow key={user.documentId}>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -258,29 +284,33 @@ const UsersListPage = () => {
                     </Box>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    {user.companyProfile ? (
-                      <Chip
-                        label={user.companyProfile.companyName}
-                        color='primary'
-                        variant='outlined'
-                        size='small'
-                      />
-                    ) : (
-                      '-'
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {user.companyProfile ? (
-                      <Chip
-                        label={formatStorage(user).label}
-                        color={formatStorage(user).color}
-                        size='small'
-                      />
-                    ) : (
-                      '-'
-                    )}
-                  </TableCell>
+                  {!osgbGorunumu && (
+                    <TableCell>
+                      {user.companyProfile ? (
+                        <Chip
+                          label={user.companyProfile.companyName}
+                          color='primary'
+                          variant='outlined'
+                          size='small'
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                  )}
+                  {!osgbGorunumu && (
+                    <TableCell>
+                      {user.companyProfile ? (
+                        <Chip
+                          label={formatStorage(user).label}
+                          color={formatStorage(user).color}
+                          size='small'
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell>
                     {user.blocked ? (
                       <Chip
@@ -296,44 +326,46 @@ const UsersListPage = () => {
                       />
                     )}
                   </TableCell>
-                  <TableCell>
-                    {user.companyProfile ? (
-                      <Switch
-                        checked={user.ahiIkMember || false}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          console.log('Switch onChange triggered')
-                          e.stopPropagation()
-                          handleAhiIkToggle(user)
-                        }}
-                        onClick={(e: React.MouseEvent) => {
-                          console.log('Switch onClick triggered')
-                          e.stopPropagation()
-                        }}
-                        color='primary'
-                        disabled={loading}
-                      />
-                    ) : (
-                      '-'
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {user.companyProfile ? (
-                      <Switch
-                        checked={user.institutionManagementMember || false}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          e.stopPropagation()
-                          handleInstitutionManagementToggle(user)
-                        }}
-                        onClick={(e: React.MouseEvent) => {
-                          e.stopPropagation()
-                        }}
-                        color='secondary'
-                        disabled={loading}
-                      />
-                    ) : (
-                      '-'
-                    )}
-                  </TableCell>
+                  {!osgbGorunumu && (
+                    <TableCell>
+                      {user.companyProfile ? (
+                        <Switch
+                          checked={user.ahiIkMember || false}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            e.stopPropagation()
+                            handleAhiIkToggle(user)
+                          }}
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation()
+                          }}
+                          color='primary'
+                          disabled={loading}
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                  )}
+                  {!osgbGorunumu && (
+                    <TableCell>
+                      {user.companyProfile ? (
+                        <Switch
+                          checked={user.institutionManagementMember || false}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            e.stopPropagation()
+                            handleInstitutionManagementToggle(user)
+                          }}
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation()
+                          }}
+                          color='secondary'
+                          disabled={loading}
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell>
                     <IconButton
                       component={Link}

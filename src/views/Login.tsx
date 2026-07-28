@@ -112,9 +112,10 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
     try {
       if (tabValue === 0) {
-        // İşveren girişi
+        // İşveren girişi — İş Güvenliği (OSGB) hesapları da bu sekmeden girer,
+        // çalışan (worker) hesabı değiller; kendi paneline yönlendirilirler.
         await authService.login(identifier, password)
-        if (!authService.isCompany() && !authService.isEmployee()) {
+        if (!authService.isCompany() && !authService.isEmployee() && !authService.isIsGuvenligi()) {
           setError({
             message: 'Bu hesap işveren hesabı değil. Lütfen çalışanlar sekmesinden giriş yapın.',
             type: 'error'
