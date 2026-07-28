@@ -41,6 +41,15 @@ export interface Worker {
   documents: WorkerDocuments;
 }
 
+// Yönetici seçimi için sade çalışan kaydı (numeric id)
+export interface WorkerOption {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  isActive: boolean;
+}
+
 // Token oluşturma response
 export interface GenerateTokenResponse {
   uploadToken: string;
@@ -181,6 +190,31 @@ class WorkersService {
     
     // WhatsApp API linki
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+  }
+
+  /**
+   * Şube/departman yöneticisi seçimi için sade çalışan listesi.
+   * Şirket izolasyonu backend'de (worker.find) uygulanır.
+   */
+  public async getWorkerOptions(): Promise<WorkerOption[]> {
+    try {
+      const response = await axiosClient.get('/api/workers', {
+        params: { 'pagination[pageSize]': 500 }
+      });
+
+      const list = Array.isArray(response.data?.data) ? response.data.data : [];
+
+      return list.map((w: any) => ({
+        id: w.id,
+        firstName: w.firstName,
+        lastName: w.lastName,
+        email: w.email,
+        isActive: w.isActive !== false
+      }));
+    } catch (error) {
+      console.error('Çalışan listesi alınamadı:', error);
+      return [];
+    }
   }
 
   /**

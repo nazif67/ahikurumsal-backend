@@ -153,6 +153,27 @@ const getNavigation = (): MenuItem[] => [
     visible: () => authService.workerHasPurchasing() && !authService.workerHasInstitutionManagement()
   },
   
+  // Organizasyon Yapısı — İK aboneliği olmayan şirketler de kendi şube/departmanlarını
+  // takip edebilsin. (Her şirket yalnızca kendi kayıtlarını görür; izolasyon backend'de.)
+  {
+    title: 'Organizasyon Yapısı',
+    icon: 'tabler-sitemap',
+    path: '/branches',
+    visible: () => authService.isCompany() && !authService.isWorker() && !authService.isAhiIk(),
+    children: [
+      {
+        title: 'Şubelerim',
+        icon: 'tabler-building-store',
+        path: '/branches'
+      },
+      {
+        title: 'Departmanlarım',
+        icon: 'tabler-briefcase',
+        path: '/departments'
+      }
+    ]
+  },
+
   {
     title: 'İnsan Kaynakları',
     icon: 'tabler-users',

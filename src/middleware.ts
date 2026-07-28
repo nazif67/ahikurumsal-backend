@@ -46,18 +46,46 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(dest, request.url))
   }
   
-  // WORKER KORUMASI: Worker sadece kendi sayfalarına erişebilir
+  // WORKER KORUMASI: Worker sadece kendi sayfalarına + yetkili olduğu modüllere erişebilir
   if (userData?.role?.type === 'worker') {
     const workerAllowedPaths = [
       '/worker-dashboard',
-      '/worker-tasks', 
+      '/worker-tasks',
       '/worker-leave-requests',
       '/worker-pdks-scan',
       '/profile/password' // Şifre değiştirme sayfası
     ]
-    
+
+    // Çalışana verilen modül yetkileri (auth.service login/checkAuth sırasında yazar)
+    const modulesCookie = request.cookies.get('workerModules')?.value
+    let workerModules: Record<string, boolean> = {}
+
+    try {
+      workerModules = modulesCookie ? JSON.parse(modulesCookie) : {}
+    } catch {
+      workerModules = {}
+    }
+
+    const hasModule = (name: string) => workerModules.all === true || workerModules[name] === true
+
+    if (hasModule('hr')) {
+      workerAllowedPaths.push('/workers', '/pdks', '/leave-tracking', '/tasks', '/branches', '/departments')
+    }
+
+    if (hasModule('pdks')) {
+      workerAllowedPaths.push('/pdks')
+    }
+
+    if (hasModule('institution')) {
+      workerAllowedPaths.push('/institution-management')
+    }
+
+    if (hasModule('purchasing')) {
+      workerAllowedPaths.push('/institution-management/purchasings')
+    }
+
     const isWorkerPath = workerAllowedPaths.some(path => pathname.startsWith(path))
-    
+
     // Worker izinli path'de değilse, dashboard'a yönlendir
     if (!isWorkerPath) {
       console.log('Worker unauthorized path attempt:', pathname, '- Redirecting to dashboard')
@@ -121,14 +149,17 @@ export function middleware(request: NextRequest) {
   
   if (isCompanyPath && userData) {
     const isWorker = userData?.role?.type === 'worker'
-    
-    // Worker bu sayfalara erişemez!
+
+    // Worker buraya ancak yukarıdaki modül yetkisi kontrolünden geçerek gelir;
+    // geçtiyse yetkili demektir, engelleme.
     if (isWorker) {
-      return NextResponse.redirect(new URL('/worker-dashboard', request.url))
+      return NextResponse.next()
     }
-    
+
     // AHİ-İK kontrolü (sadece şirketler için)
-    const ahiIkPaths = ['/digital-hr', '/workers', '/pdks', '/leave-tracking', '/tasks', '/branches', '/departments']
+    // NOT: /branches ve /departments listede yok — organizasyon yapısı (şube/departman)
+    // İK aboneliği olmayan şirketler için de açıktır.
+    const ahiIkPaths = ['/digital-hr', '/workers', '/pdks', '/leave-tracking', '/tasks']
     const isAhiIkPath = ahiIkPaths.some(path => pathname.startsWith(path))
     
     if (isAhiIkPath) {

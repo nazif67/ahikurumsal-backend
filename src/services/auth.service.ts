@@ -177,6 +177,7 @@ export class AuthService {
     localStorage.removeItem('workerProfile')
     Cookies.remove('token')
     Cookies.remove('user')
+    Cookies.remove('workerModules')
     delete axiosClient.defaults.headers.common['Authorization']
   }
 
@@ -279,6 +280,21 @@ export class AuthService {
       if (response.data.data?.[0]) {
         this.workerProfile = response.data.data[0]
         localStorage.setItem('workerProfile', JSON.stringify(this.workerProfile))
+
+        // Modül yetkileri middleware'de (server-side) de gerekli — cookie'ye yaz.
+        const p = this.workerProfile as any
+
+        Cookies.set(
+          'workerModules',
+          JSON.stringify({
+            all: p.hasAllModules === true,
+            hr: p.hasHumanResources === true,
+            pdks: p.hasPdks === true,
+            institution: p.hasInstitutionManagement === true,
+            purchasing: p.hasPurchasing === true
+          }),
+          { expires: 1 }
+        )
       }
     } catch (error) {
       console.error('Fetch worker profile failed:', error)
