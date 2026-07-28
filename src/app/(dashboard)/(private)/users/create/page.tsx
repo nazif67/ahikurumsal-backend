@@ -12,9 +12,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
+import FormHelperText from '@mui/material/FormHelperText'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Switch from '@mui/material/Switch'
 import Alert from '@mui/material/Alert'
@@ -53,6 +51,10 @@ const CreateUserPage = () => {
 
   const router = useRouter()
 
+  const normalRol = roles.find(role => role.type === 'authenticated')
+  const isGuvenligiRole = roles.find(role => role.type === 'is-guvenligi')
+  const isGuvenligiSecili = !!isGuvenligiRole && formData.role === isGuvenligiRole.id
+
   useEffect(() => {
     loadRoles()
   }, [])
@@ -61,14 +63,19 @@ const CreateUserPage = () => {
     try {
       const response = await rolesService.getRoles()
       if (response.error) throw response.error
+
+      // Rol adı yerine type ile eşleştir: ad yerelleştirilmiş metin olduğu için
+      // değişebilir, type ('authenticated' / 'is-guvenligi') sabittir.
       const filteredRoles = response.data.filter((role: StrapiRole) =>
-        ['Authenticated', 'İş Güvenliği'].includes(role.name)
+        ['authenticated', 'is-guvenligi'].includes(role.type)
       )
       setRoles(filteredRoles)
-      if (filteredRoles.length > 0) {
+
+      const varsayilanRol = filteredRoles.find(role => role.type === 'authenticated') ?? filteredRoles[0]
+      if (varsayilanRol) {
         setFormData(prev => ({
           ...prev,
-          role: filteredRoles[0].id
+          role: varsayilanRol.id
         }))
       }
     } catch (error: any) {
@@ -177,19 +184,24 @@ const CreateUserPage = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <FormControl fullWidth required error={formErrors.role}>
-                <InputLabel>Rol</InputLabel>
-                <Select
-                  value={formData.role}
-                  label='Rol'
-                  onChange={e => handleChange('role', e.target.value)}
-                >
-                  {roles.map(role => (
-                    <MenuItem key={role.id} value={role.id}>
-                      {role.name === 'Authenticated' ? 'Normal Kullanıcı' : role.name}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl error={formErrors.role}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isGuvenligiSecili}
+                      disabled={!isGuvenligiRole}
+                      onChange={e =>
+                        handleChange('role', e.target.checked ? isGuvenligiRole?.id : normalRol?.id ?? '')
+                      }
+                    />
+                  }
+                  label='İş Güvenliği Firması'
+                />
+                <FormHelperText>
+                  {isGuvenligiRole
+                    ? 'Açık: İş Güvenliği (OSGB) firma hesabı — Kapalı: normal kullanıcı'
+                    : 'İş Güvenliği rolü Strapi’de bulunamadı. Strapi güncellenip yeniden başlatılmalı.'}
+                </FormHelperText>
               </FormControl>
             </Grid>
 
