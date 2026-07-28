@@ -72,7 +72,11 @@ export function middleware(request: NextRequest) {
       '/profile/password' // Şifre değiştirme sayfası
     ]
 
-    const isIsGuvenligiPath = isGuvenligiAllowedPaths.some(path => pathname.startsWith(path))
+    // Tam segment eşleşmesi: düz startsWith, admin'e ait /is-guvenligi-firmalari
+    // sayfasını da "izinli" sayıyordu (aynı önekle başlıyor).
+    const isIsGuvenligiPath = isGuvenligiAllowedPaths.some(
+      path => pathname === path || pathname.startsWith(`${path}/`)
+    )
 
     // İş Güvenliği izinli path'de değilse, dashboard'a yönlendir
     if (!isIsGuvenligiPath) {

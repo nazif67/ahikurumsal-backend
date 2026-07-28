@@ -204,8 +204,13 @@ const UsersListPage = () => {
 
   // İş Güvenliği (OSGB) hesaplarının companyProfile'ı olmaz; şirket/depolama/AHİ-İK
   // sütunları onlar için hep "-" göründüğünden ayrı sekmede ve sade kolonlarla listelenir.
-  const isGuvenligiKullanicilari = users.filter(user => user.role?.type === 'is-guvenligi')
-  const normalKullanicilar = users.filter(user => user.role?.type !== 'is-guvenligi')
+  // type asıl ölçüt, ama eski Strapi sürümleri rol tipini döndürmediği için ada da
+  // bakılır — aksi halde hesap sessizce yanlış sekmede görünür.
+  const isGuvenligiHesabi = (user: StrapiUser) =>
+    user.role?.type === 'is-guvenligi' || user.role?.name === 'İş Güvenliği'
+
+  const isGuvenligiKullanicilari = users.filter(isGuvenligiHesabi)
+  const normalKullanicilar = users.filter(user => !isGuvenligiHesabi(user))
   const osgbGorunumu = aktifSekme === 'isGuvenligi'
   const goruntulenenKullanicilar = osgbGorunumu ? isGuvenligiKullanicilari : normalKullanicilar
 

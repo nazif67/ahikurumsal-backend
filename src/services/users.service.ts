@@ -75,10 +75,13 @@ class UsersService {
   public async getUsers(): Promise<StrapiResponse<StrapiUser[]>> {
     const response = await axiosClient.get('/api/users', {
       params: {
+        // Rol adı yerelleştirilmiş metin olduğu için type ile filtrelenir.
+        // İş Güvenliği (OSGB) hesapları da listeye dahil olmalı — aksi halde
+        // Kullanıcı Yönetimi'ndeki "İş Güvenliği" sekmesi hep boş kalır.
         filters: {
           role: {
-            name: {
-              $eq: ['Authenticated']
+            type: {
+              $in: ['authenticated', 'is-guvenligi']
             }
           }
         },
