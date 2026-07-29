@@ -8,6 +8,7 @@ export interface IsGuvenligiIlacTalebi {
   adSoyad: string
   ilaclar: { id: number; ilacAdi: string; mg: string }[]
   hekimRaporu: 'var' | 'yok'
+  aciklama?: string | null
   durum: IsGuvenligiIlacTalebiDurum
   firma?: {
     id: number

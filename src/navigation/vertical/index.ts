@@ -44,6 +44,12 @@ const getNavigation = (): MenuItem[] => [
     path: '/worker-tasks',
     visible: () => authService.isWorker()
   },
+  {
+    title: 'Ücret Pusulalarım',
+    icon: 'tabler-receipt',
+    path: '/worker-payslips',
+    visible: () => authService.isWorker()
+  },
 
   // Worker - İnsan Kaynakları Modülü (Ek yetkiler)
   {
@@ -86,6 +92,12 @@ const getNavigation = (): MenuItem[] => [
         title: 'Departmanlar',
         icon: 'tabler-briefcase',
         path: '/departments',
+        visible: () => authService.workerHasHumanResources()
+      },
+      {
+        title: 'Ücret Pusulası Gönderimi',
+        icon: 'tabler-receipt',
+        path: '/ucret-pusulasi',
         visible: () => authService.workerHasHumanResources()
       }
     ]
@@ -226,6 +238,12 @@ const getNavigation = (): MenuItem[] => [
         title: 'Departmanlarım',
         icon: 'tabler-briefcase',
         path: '/departments',
+        visible: () => authService.isAhiIk()
+      },
+      {
+        title: 'Ücret Pusulası Gönderimi',
+        icon: 'tabler-receipt',
+        path: '/ucret-pusulasi',
         visible: () => authService.isAhiIk()
       }
     ]

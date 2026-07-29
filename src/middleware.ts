@@ -53,6 +53,7 @@ export function middleware(request: NextRequest) {
       '/worker-tasks',
       '/worker-leave-requests',
       '/worker-pdks-scan',
+      '/worker-payslips', // Kendi ücret pusulaları
       '/profile/password' // Şifre değiştirme sayfası
     ]
 
@@ -69,7 +70,15 @@ export function middleware(request: NextRequest) {
     const hasModule = (name: string) => workerModules.all === true || workerModules[name] === true
 
     if (hasModule('hr')) {
-      workerAllowedPaths.push('/workers', '/pdks', '/leave-tracking', '/tasks', '/branches', '/departments')
+      workerAllowedPaths.push(
+        '/workers',
+        '/pdks',
+        '/leave-tracking',
+        '/tasks',
+        '/branches',
+        '/departments',
+        '/ucret-pusulasi'
+      )
     }
 
     if (hasModule('pdks')) {
@@ -124,11 +133,12 @@ export function middleware(request: NextRequest) {
 
   // ŞIRKET/ADMIN SAYFALARI KORUMASI: Worker bu sayfalara erişemez
   const companyPaths = [
-    '/digital-hr', 
-    '/workers', 
-    '/pdks', 
+    '/digital-hr',
+    '/workers',
+    '/pdks',
     '/leave-tracking',
     '/tasks',
+    '/ucret-pusulasi',
     '/branches',
     '/departments',
     '/statistics',
@@ -159,7 +169,7 @@ export function middleware(request: NextRequest) {
     // AHİ-İK kontrolü (sadece şirketler için)
     // NOT: /branches ve /departments listede yok — organizasyon yapısı (şube/departman)
     // İK aboneliği olmayan şirketler için de açıktır.
-    const ahiIkPaths = ['/digital-hr', '/workers', '/pdks', '/leave-tracking', '/tasks']
+    const ahiIkPaths = ['/digital-hr', '/workers', '/pdks', '/leave-tracking', '/tasks', '/ucret-pusulasi']
     const isAhiIkPath = ahiIkPaths.some(path => pathname.startsWith(path))
     
     if (isAhiIkPath) {

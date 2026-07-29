@@ -42,8 +42,11 @@ export interface Worker {
 }
 
 // Yönetici seçimi için sade çalışan kaydı (numeric id)
+// documentId ayrıca taşınır: custom controller'lar (ör. ücret pusulası eşleştirme)
+// kaydı documentId ile arar, ilişki alanları ise numeric id ister.
 export interface WorkerOption {
   id: number;
+  documentId: string;
   firstName: string;
   lastName: string;
   email?: string;
@@ -206,6 +209,7 @@ class WorkersService {
 
       return list.map((w: any) => ({
         id: w.id,
+        documentId: w.documentId,
         firstName: w.firstName,
         lastName: w.lastName,
         email: w.email,

@@ -28,11 +28,32 @@ import Link from '@components/Link'
 import { axiosClient } from '@/libs/axios'
 import { authService } from '@/services'
 
+/**
+ * T.C. Kimlik No doğrulaması (NVI algoritması).
+ * Ücret pusulası dağıtımı bu alana göre eşleştiğinden hatalı bir TC
+ * pusulanın yanlış kişiye gitmesine yol açar; kayıt anında doğrulanır.
+ */
+const tcGecerliMi = (deger: string) => {
+  const tc = deger.replace(/\D/g, '')
+
+  if (tc.length !== 11 || tc[0] === '0') return false
+  if (/^(\d)\1{9}/.test(tc)) return false
+
+  const d = tc.split('').map(Number)
+  const tek = d[0] + d[2] + d[4] + d[6] + d[8]
+  const cift = d[1] + d[3] + d[5] + d[7]
+
+  if ((tek * 7 - cift) % 10 !== d[9]) return false
+
+  return d.slice(0, 10).reduce((a, b) => a + b, 0) % 10 === d[10]
+}
+
 interface WorkerFormData {
   photo?: File | null
   firstName: string
   lastName: string
   email: string
+  tcKimlikNo: string
   phone: string
   birthDate: string
   hireDate: string
@@ -62,6 +83,7 @@ const UpdateWorkerPage = ({ params }: { params: Promise<{ id: string }> }) => {
     firstName: '',
     lastName: '',
     email: '',
+    tcKimlikNo: '',
     phone: '',
     birthDate: '',
     hireDate: '',
@@ -104,6 +126,7 @@ const UpdateWorkerPage = ({ params }: { params: Promise<{ id: string }> }) => {
           firstName: worker.firstName || '',
           lastName: worker.lastName || '',
           email: worker.email || '',
+          tcKimlikNo: worker.tcKimlikNo || '',
           phone: worker.phone || '',
           birthDate: worker.birthDate ? worker.birthDate.split('T')[0] : '',
           hireDate: worker.hireDate ? worker.hireDate.split('T')[0] : '',
@@ -148,6 +171,14 @@ const UpdateWorkerPage = ({ params }: { params: Promise<{ id: string }> }) => {
     setLoading(true)
     setError(null)
 
+    // TC isteğe bağlı; ama girildiyse geçerli olmak zorunda
+    if (formData.tcKimlikNo && !tcGecerliMi(formData.tcKimlikNo)) {
+      setError('Girdiğiniz T.C. Kimlik No geçerli değil. Lütfen 11 haneli numarayı kontrol edin.')
+      setLoading(false)
+
+      return
+    }
+
     // Şifre değiştirme kontrolü
     if (formData.changePassword) {
       if (!formData.newPassword || !formData.confirmPassword) {
@@ -187,6 +218,7 @@ const UpdateWorkerPage = ({ params }: { params: Promise<{ id: string }> }) => {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
+          tcKimlikNo: formData.tcKimlikNo || null,
           phone: formData.phone || undefined,
           birthDate: formData.birthDate || undefined,
           hireDate: formData.hireDate,
@@ -302,6 +334,18 @@ const UpdateWorkerPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 onChange={e => handleChange('email', e.target.value)}
                 required
                 disabled
+              />
+            </Grid>
+
+            {/* T.C. Kimlik No */}
+            <Grid item xs={12} md={6}>
+              <CustomTextField
+                fullWidth
+                label='T.C. Kimlik No'
+                value={formData.tcKimlikNo}
+                onChange={e => handleChange('tcKimlikNo', e.target.value.replace(/\D/g, '').slice(0, 11))}
+                inputProps={{ inputMode: 'numeric', maxLength: 11 }}
+                helperText='11 hane. Ücret pusulası bu numaraya göre çalışana yönlendirilir.'
               />
             </Grid>
 

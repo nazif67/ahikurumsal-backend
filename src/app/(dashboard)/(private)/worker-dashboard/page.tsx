@@ -19,6 +19,10 @@ import { authService } from '@/services'
 import { taskService } from '@/services/task.service'
 import { leaveRequestService } from '@/services/leave-request.service'
 import { type WorkerDocuments } from '@/services/workers.service'
+import { ucretPusulasiService, donemEtiketi, type UcretPusulasi } from '@/services/ucret-pusulasi.service'
+
+// Navigation
+import Link from '@components/Link'
 
 // Belge türü etiketleri
 const documentTypeLabels: Record<string, string> = {
@@ -37,7 +41,16 @@ const WorkerDashboardPage = () => {
   const [leaveRequests, setLeaveRequests] = useState<any[]>([])
   const [remainingLeave, setRemainingLeave] = useState<any>(null)
   const [documents, setDocuments] = useState<WorkerDocuments | null>(null)
+  const [bekleyenPusulalar, setBekleyenPusulalar] = useState<UcretPusulasi[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Onay bekleyen ücret pusulası bildirimi
+  useEffect(() => {
+    ucretPusulasiService
+      .benimPusulalarim()
+      .then(liste => setBekleyenPusulalar(liste.filter(p => p.calisanOnayDurumu !== 'onaylandi')))
+      .catch(() => setBekleyenPusulalar([]))
+  }, [])
 
   // Fetch data
   useEffect(() => {
@@ -174,6 +187,31 @@ const WorkerDashboardPage = () => {
           </CardContent>
         </Card>
       </Grid>
+
+      {/* Ücret pusulası bildirimi */}
+      {bekleyenPusulalar.length > 0 && (
+        <Grid item xs={12}>
+          <Alert
+            severity='info'
+            action={
+              <Button component={Link} href='/worker-payslips' size='small' variant='contained'>
+                Pusulalarımı Aç
+              </Button>
+            }
+          >
+            <Typography variant='body1' sx={{ fontWeight: 600 }}>
+              Onayınızı bekleyen {bekleyenPusulalar.length} ücret pusulası var
+            </Typography>
+            <Typography variant='body2'>
+              {bekleyenPusulalar
+                .slice(0, 3)
+                .map(p => donemEtiketi(p.donemYil, p.donemAy))
+                .join(', ')}
+              {bekleyenPusulalar.length > 3 ? ` ve ${bekleyenPusulalar.length - 3} dönem daha` : ''}
+            </Typography>
+          </Alert>
+        </Grid>
+      )}
 
       {/* İstatistikler */}
       {workerData && (

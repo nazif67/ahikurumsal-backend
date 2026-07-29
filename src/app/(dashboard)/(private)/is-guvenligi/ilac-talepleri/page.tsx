@@ -134,6 +134,7 @@ const IsGuvenligiIlacTalepleriPage = () => {
                       <TableCell>Firma</TableCell>
                       <TableCell>İlaçlar</TableCell>
                       <TableCell align='center'>Hekim Raporu</TableCell>
+                      <TableCell>Açıklama</TableCell>
                       <TableCell>Tarih</TableCell>
                       <TableCell align='center'>Durum</TableCell>
                     </TableRow>
@@ -154,6 +155,11 @@ const IsGuvenligiIlacTalepleriPage = () => {
                         </TableCell>
                         <TableCell align='center'>
                           <Chip label={talep.hekimRaporu === 'var' ? 'Var' : 'Yok'} color={talep.hekimRaporu === 'var' ? 'success' : 'default'} size='small' />
+                        </TableCell>
+                        <TableCell sx={{ maxWidth: 260 }}>
+                          <Typography variant='body2' color={talep.aciklama ? 'text.primary' : 'text.secondary'} sx={{ whiteSpace: 'pre-wrap' }}>
+                            {talep.aciklama || '-'}
+                          </Typography>
                         </TableCell>
                         <TableCell>{new Date(talep.createdAt).toLocaleDateString('tr-TR')}</TableCell>
                         <TableCell align='center'>
